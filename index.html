@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Things to Complain About</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="complaint-box">
+    <h2>Things to Complain About</h2>
+    
+    <form id="complaintForm">
+      <label for="complaint">What's bothering you?</label>
+      <textarea id="complaint" placeholder="Describe your complaint anonymously..." required></textarea>
+
+      <button type="submit">Submit Your Complaint</button>
+    </form>
+
+    <div class="complaint-log">
+      <h3>Anonymous Complaint Log</h3>
+      <ul id="complaintList"></ul>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
