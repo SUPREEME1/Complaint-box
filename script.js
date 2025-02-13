@@ -1,47 +1,81 @@
-// Select the form and complaint list
-const complaintForm = document.getElementById('complaintForm');
-const complaintList = document.getElementById('complaintList');
-
-// Load complaints from local storage
 document.addEventListener('DOMContentLoaded', loadComplaints);
 
-// Handle form submission
+const complaintForm = document.getElementById('complaintForm');
+const complaintList = document.getElementById('complaintList');
+const exportBtn = document.getElementById('exportBtn');
+const adminModal = document.getElementById('adminModal');
+const loginBtn = document.getElementById('loginBtn');
+const errorMessage = document.getElementById('error-message');
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+const adminCredentials = { username: "admin", password: "admin123" };
+
 complaintForm.addEventListener('submit', (event) => {
-  event.preventDefault(); // Prevent page refresh on submit
-
+  event.preventDefault();
   const complaint = document.getElementById('complaint').value.trim();
-
-  // Only add if complaint field has content
-  if (complaint) {
+  
+  if (!complaint) {
+    alert("Please enter a complaint.");
+    return;
+  }
+  
+  if (!isDuplicateComplaint(complaint)) {
     addComplaint(complaint);
     saveComplaint(complaint);
-    complaintForm.reset(); // Clear the form
   } else {
-    alert("Please describe your complaint.");
+    alert("This complaint already exists.");
   }
+  
+  complaintForm.reset();
 });
 
-// Function to add a complaint to the list
 function addComplaint(complaint) {
   const complaintItem = document.createElement('li');
+  complaintItem.textContent = complaint;
   complaintItem.classList.add('complaint-item');
-
-  const complaintText = document.createElement('p');
-  complaintText.textContent = complaint;
-
-  complaintItem.appendChild(complaintText);
   complaintList.appendChild(complaintItem);
 }
 
-// Function to save a complaint to local storage
 function saveComplaint(complaint) {
   let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
   complaints.push(complaint);
   localStorage.setItem('complaints', JSON.stringify(complaints));
 }
 
-// Function to load complaints from local storage
+function isDuplicateComplaint(complaint) {
+  let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+  return complaints.includes(complaint);
+}
+
 function loadComplaints() {
   let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
-  complaints.forEach(complaint => addComplaint(complaint));
+  complaints.forEach(addComplaint);
 }
+
+adminLoginBtn.addEventListener('click', () => adminModal.style.display = "flex");
+closeModalBtn.addEventListener('click', () => adminModal.style.display = "none");
+
+loginBtn.addEventListener('click', () => {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  
+  if (username === adminCredentials.username && password === adminCredentials.password) {
+    adminModal.style.display = "none";
+    exportBtn.style.display = "block";
+  } else {
+    errorMessage.style.display = "block";
+  }
+});
+
+exportBtn.addEventListener('click', () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("Complaint Log", 14, 10);
+  let y = 20;
+  JSON.parse(localStorage.getItem('complaints') || "[]").forEach(complaint => {
+    doc.text(`- ${complaint}`, 14, y);
+    y += 10;
+  });
+  doc.save('complaints.pdf');
+});
